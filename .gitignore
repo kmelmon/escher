@@ -30,3 +30,13 @@
 *.exe
 *.out
 *.app
+
+#other stuff
+*.db
+*.suo
+*.ipch
+
+**/Debug/*
+**/Generated Files/*
+**/.vs/*
+
