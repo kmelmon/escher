@@ -17,5 +17,12 @@ namespace Escher
 	public:
 		MainPage();
 
+	protected:
+		void InitializeTileGrid();
+
+		void OnSizeChanged(Platform::Object^ sender, Windows::UI::Core::WindowSizeChangedEventArgs^ e);
+
+		Windows::Foundation::IAsyncOperation<Windows::Graphics::Imaging::SoftwareBitmap^>^ GenerateTileAsync();
+
 	};
 }

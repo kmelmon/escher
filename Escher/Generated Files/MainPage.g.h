@@ -7,6 +7,15 @@
 //------------------------------------------------------------------------------
 
 
+namespace Windows {
+    namespace UI {
+        namespace Xaml {
+            namespace Controls {
+                ref class Grid;
+            }
+        }
+    }
+}
 
 namespace Escher
 {
@@ -29,6 +38,7 @@ namespace Escher
     
         class MainPage_obj1_Bindings;
     
+        private: ::Windows::UI::Xaml::Controls::Grid^ tileGrid;
     };
 }
 
