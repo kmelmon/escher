@@ -18,11 +18,17 @@ namespace Escher
 		MainPage();
 
 	protected:
+		void LoadImages();
+		Windows::Foundation::IAsyncOperation<Windows::Graphics::Imaging::SoftwareBitmap^>^ GenerateTileAsync();
+		Windows::Graphics::Imaging::SoftwareBitmap^ InvertTile(Windows::Graphics::Imaging::SoftwareBitmap^ tile);
 		void InitializeTileGrid();
 
 		void OnSizeChanged(Platform::Object^ sender, Windows::UI::Core::WindowSizeChangedEventArgs^ e);
 
-		Windows::Foundation::IAsyncOperation<Windows::Graphics::Imaging::SoftwareBitmap^>^ GenerateTileAsync();
-
+	private:
+		Windows::Graphics::Imaging::SoftwareBitmap^ m_tile;
+		Windows::UI::Xaml::Media::Imaging::SoftwareBitmapSource^ m_tileSource;
+		Windows::Graphics::Imaging::SoftwareBitmap^ m_tileInverse;
+		Windows::UI::Xaml::Media::Imaging::SoftwareBitmapSource^ m_tileInverseSource;
 	};
 }

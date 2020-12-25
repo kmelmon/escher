@@ -46,6 +46,9 @@
     <Image Include="Assets\face2.png">
       <Filter>Assets</Filter>
     </Image>
+    <Image Include="Assets\tile.gif">
+      <Filter>Assets</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />
