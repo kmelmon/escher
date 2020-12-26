@@ -49,6 +49,15 @@
     <Image Include="Assets\tile.gif">
       <Filter>Assets</Filter>
     </Image>
+    <Image Include="Assets\tile.jpg">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\tile.bmp">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\tile2.bmp">
+      <Filter>Assets</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />

@@ -33,32 +33,64 @@ MainPage::MainPage()
 {
 	InitializeComponent();
 	LoadImages();
-	InitializeTileGrid();
 	Window::Current->SizeChanged += ref new Windows::UI::Xaml::WindowSizeChangedEventHandler(this, &Escher::MainPage::OnSizeChanged);
 }
 
 void Escher::MainPage::OnSizeChanged(Platform::Object^ sender, Windows::UI::Core::WindowSizeChangedEventArgs^ e)
 {
 	InitializeTileGrid();
-	int dummy = 10;
 }
 
 void MainPage::LoadImages()
 {
-	create_task(GenerateTileAsync()).then([this](_In_ SoftwareBitmap^ bitmap)
-		{
-			m_tile = bitmap;
-			m_tileInverse = InvertTile(m_tile);
-			m_tileSource = ref new SoftwareBitmapSource();
-			m_tileSource->SetBitmapAsync(m_tile);
-		});
+	wchar_t* tiles[] =
+	{
+		L"ms-appx:///Assets/tile.bmp",
+		L"ms-appx:///Assets/tile2.bmp"
+	};
+
+	for (unsigned int i = 0; i < ARRAYSIZE(tiles); i++)
+	{
+		create_task(GenerateTileAsync(tiles[i])).then([this, i](_In_ SoftwareBitmap^ bitmap)
+			{
+				// For some reason SoftwareBitmapSource requires premultiplied alpha otherwise it throws an exception.  Workaround this limitation by converting.
+				SoftwareBitmap^ tileBitmap = SoftwareBitmap::Convert(bitmap, BitmapPixelFormat::Bgra8, BitmapAlphaMode::Premultiplied);
+				auto tileSource = ref new SoftwareBitmapSource();
+				tileSource->SetBitmapAsync(tileBitmap);
+				m_tiles.Append(tileSource);
+				SoftwareBitmap^ inverseTileBitmap = InvertTile(tileBitmap);
+				auto tileInverseSource = ref new SoftwareBitmapSource();
+				tileInverseSource->SetBitmapAsync(inverseTileBitmap);
+				m_inverseTiles.Append(tileInverseSource);	
+
+				if (m_tiles.Size == 2)
+				{
+					m_timer = ref new Windows::UI::Xaml::DispatcherTimer();
+					Windows::Foundation::TimeSpan ts;
+					ts.Duration = 3000000;
+					m_timer->Interval = ts;
+					m_timer->Tick += ref new Windows::Foundation::EventHandler<Platform::Object^>(this, &MainPage::OnTick);
+					m_timer->Start();
+				}
+			});
+	}
 }
 
-IAsyncOperation<SoftwareBitmap^>^ MainPage::GenerateTileAsync()
+void MainPage::OnTick(Platform::Object ^ sender, Platform::Object ^ args)
 {
-	return create_async([]()
+	InitializeTileGrid();
+	m_frame++;
+	if (m_frame == 2)
 	{
-		Uri^ tileUri = ref new Uri("ms-appx:///Assets/tile.gif");
+		m_frame = 0;
+	}
+}
+
+IAsyncOperation<SoftwareBitmap^>^ MainPage::GenerateTileAsync(wchar_t* uri)
+{
+	return create_async([uri]()
+	{
+		Uri^ tileUri = ref new Uri(ref new Platform::String(uri));
 		auto streamReference = RandomAccessStreamReference::CreateFromUri(tileUri);
 		return create_task(streamReference->OpenReadAsync()).then([](_In_ IRandomAccessStreamWithContentType^ stream)
 		{
@@ -101,7 +133,7 @@ SoftwareBitmap^ MainPage::InvertTile(SoftwareBitmap^ tile)
 		bitmapBytes[i] = ~bitmapBytes[i];
 		bitmapBytes[i + 1] = ~bitmapBytes[i + 1];
 		bitmapBytes[i + 2] = ~bitmapBytes[i + 2];
-		bitmapBytes[i + 3] = ~bitmapBytes[i + 3];
+		// 4th channel is alpha, don't invert
 	}
 
 	return inverse;
@@ -114,8 +146,8 @@ void MainPage::InitializeTileGrid()
 	int tileSize = 100;
 
 	auto window = Window::Current;
-	int rows = static_cast<int>(window->Bounds.Height) / tileSize;
-	int cols = static_cast<int>(window->Bounds.Width) / tileSize;
+	int rows = static_cast<int>(window->Bounds.Height) / tileSize + 1;
+	int cols = static_cast<int>(window->Bounds.Width) / tileSize + 1;
 	tileGrid->RowDefinitions->Clear();
 	tileGrid->ColumnDefinitions->Clear();
 	for (int i = 0; i < rows; i++)
@@ -144,10 +176,7 @@ void MainPage::InitializeTileGrid()
 			bitmapImage->UriSource = invert ? ref new Uri(L"ms-appx:///Assets/face.png") : ref new Uri(L"ms-appx:///Assets/face2.png");
 			imageBrush->ImageSource = bitmapImage;
 			*/
-//			auto inverseTileSource = ref new SoftwareBitmapSource();
-//			inverseTileSource->SetBitmapAsync(m_tileInverse);
-//			imageBrush->ImageSource = invert ? inverseTileSource : tileSource;
-			imageBrush->ImageSource = m_tileSource;
+			imageBrush->ImageSource = invert ? m_inverseTiles.GetAt(m_frame) : m_tiles.GetAt(m_frame);
 			auto transform = ref new RotateTransform();
 			bool evenRow = (i % 2 == 0);
 			bool evenCol = (j % 2 == 0);

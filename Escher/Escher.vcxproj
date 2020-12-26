@@ -197,7 +197,10 @@
     <Image Include="Assets\Square44x44Logo.scale-200.png" />
     <Image Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Image Include="Assets\StoreLogo.png" />
+    <Image Include="Assets\tile.bmp" />
     <Image Include="Assets\tile.gif" />
+    <Image Include="Assets\tile.jpg" />
+    <Image Include="Assets\tile2.bmp" />
     <Image Include="Assets\Wide310x150Logo.scale-200.png" />
   </ItemGroup>
   <ItemGroup>
