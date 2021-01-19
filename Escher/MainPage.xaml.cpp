@@ -33,21 +33,27 @@ MainPage::MainPage()
 {
 	InitializeComponent();
 	LoadImages();
+	InitializeTileGrid();
 	Window::Current->SizeChanged += ref new Windows::UI::Xaml::WindowSizeChangedEventHandler(this, &Escher::MainPage::OnSizeChanged);
 }
 
 void Escher::MainPage::OnSizeChanged(Platform::Object^ sender, Windows::UI::Core::WindowSizeChangedEventArgs^ e)
 {
 	InitializeTileGrid();
+	UpdateImageBrushes();
 }
 
 void MainPage::LoadImages()
 {
 	wchar_t* tiles[] =
 	{
+		L"ms-appx:///Assets/tile5.bmp",
+		L"ms-appx:///Assets/tile4.bmp",
+		L"ms-appx:///Assets/tile3.bmp",
+		L"ms-appx:///Assets/tile2.bmp",
 		L"ms-appx:///Assets/tile.bmp",
-		L"ms-appx:///Assets/tile2.bmp"
 	};
+	m_numFrames = ARRAYSIZE(tiles);
 
 	for (unsigned int i = 0; i < ARRAYSIZE(tiles); i++)
 	{
@@ -63,7 +69,7 @@ void MainPage::LoadImages()
 				tileInverseSource->SetBitmapAsync(inverseTileBitmap);
 				m_inverseTiles.Append(tileInverseSource);	
 
-				if (m_tiles.Size == 2)
+				if (m_tiles.Size == m_numFrames)
 				{
 					m_timer = ref new Windows::UI::Xaml::DispatcherTimer();
 					Windows::Foundation::TimeSpan ts;
@@ -78,9 +84,9 @@ void MainPage::LoadImages()
 
 void MainPage::OnTick(Platform::Object ^ sender, Platform::Object ^ args)
 {
-	InitializeTileGrid();
+	UpdateImageBrushes();
 	m_frame++;
-	if (m_frame == 2)
+	if (m_frame == m_numFrames)
 	{
 		m_frame = 0;
 	}
@@ -139,11 +145,11 @@ SoftwareBitmap^ MainPage::InvertTile(SoftwareBitmap^ tile)
 	return inverse;
 }
 
+int tileSize = 100;
+
 void MainPage::InitializeTileGrid()
 {
 	tileGrid->Children->Clear();
-
-	int tileSize = 100;
 
 	auto window = Window::Current;
 	int rows = static_cast<int>(window->Bounds.Height) / tileSize + 1;
@@ -168,15 +174,12 @@ void MainPage::InitializeTileGrid()
 		for (int j = 0; j < cols; j++)
 		{
 			auto rect = ref new Rectangle();
-			bool odd = (i * cols + j) % 2;
-			bool invert = ((i % 2) + (j % 2)) % 2;
+			Grid::SetRow(safe_cast<FrameworkElement^>(rect), i);
+			Grid::SetColumn(safe_cast<FrameworkElement^>(rect), j);
+			tileGrid->Children->Append(rect);
+
 			auto imageBrush = ref new ImageBrush();
-			/*
-			auto bitmapImage = ref new BitmapImage();
-			bitmapImage->UriSource = invert ? ref new Uri(L"ms-appx:///Assets/face.png") : ref new Uri(L"ms-appx:///Assets/face2.png");
-			imageBrush->ImageSource = bitmapImage;
-			*/
-			imageBrush->ImageSource = invert ? m_inverseTiles.GetAt(m_frame) : m_tiles.GetAt(m_frame);
+
 			auto transform = ref new RotateTransform();
 			bool evenRow = (i % 2 == 0);
 			bool evenCol = (j % 2 == 0);
@@ -189,12 +192,27 @@ void MainPage::InitializeTileGrid()
 			transform->CenterY = 50;
 			imageBrush->Transform = transform;
 			rect->Fill = imageBrush;
-//			rect->Fill = ref new SolidColorBrush(Windows::UI::Colors::White);
-			Grid::SetRow(safe_cast<FrameworkElement^>(rect), i);
-			Grid::SetColumn(safe_cast<FrameworkElement^>(rect), j);
-			tileGrid->Children->Append(rect);
 		}
 	}
-
 }
+
+void MainPage::UpdateImageBrushes()
+{
+	auto window = Window::Current;
+	int rows = static_cast<int>(window->Bounds.Height) / tileSize + 1;
+	int cols = static_cast<int>(window->Bounds.Width) / tileSize + 1;
+	int count = 0;
+	for (int i = 0; i < rows; i++)
+	{
+		for (int j = 0; j < cols; j++)
+		{
+			auto rect = safe_cast<Rectangle^>(tileGrid->Children->GetAt(count++));
+			auto imageBrush = safe_cast<ImageBrush^>(rect->Fill);
+			bool invert = ((i % 2) + (j % 2)) % 2;
+			imageBrush->ImageSource = invert ? m_inverseTiles.GetAt(m_frame) : m_tiles.GetAt(m_frame);
+			
+		}
+	}
+}
+
 

@@ -201,6 +201,9 @@
     <Image Include="Assets\tile.gif" />
     <Image Include="Assets\tile.jpg" />
     <Image Include="Assets\tile2.bmp" />
+    <Image Include="Assets\tile3.bmp" />
+    <Image Include="Assets\tile4.bmp" />
+    <Image Include="Assets\tile5.bmp" />
     <Image Include="Assets\Wide310x150Logo.scale-200.png" />
   </ItemGroup>
   <ItemGroup>

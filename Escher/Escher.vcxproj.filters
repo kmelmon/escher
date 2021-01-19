@@ -58,6 +58,15 @@
     <Image Include="Assets\tile2.bmp">
       <Filter>Assets</Filter>
     </Image>
+    <Image Include="Assets\tile3.bmp">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\tile4.bmp">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\tile5.bmp">
+      <Filter>Assets</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />
